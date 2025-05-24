@@ -3739,7 +3739,7 @@ function validarQRAPI(qrStringInput) {
 
     const CODIGO_QR = qrStringInput;
 
-    const url = `https://apiresolve.bancoroela.com.ar/api/resolve?access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiIyNDVjMWM3ZjM5YjU0ODVkYjk1Yjc1ZTJlNjRlZjgzZCJ9.uHq5WX21kF-S--0DqZz0R311_HsXufzBQaKBgbz_fWI&data=${encodeURIComponent(CODIGO_QR)}`;
+    const url = `/api/resolve?data=${encodeURIComponent(CODIGO_QR)}`;
 
     fetch(url)
         .then(response => {
