@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
         const resultTitle = document.createElement('div');
         resultTitle.className = 'result-title';
-        resultTitle.textContent = '📷 Código QR generado:';
+        resultTitle.textContent = 'ℹ️ Código QR generado:';
     
         const qrContainer = document.createElement('div');
         qrContainer.id = 'qrCodeTemp';
@@ -3757,10 +3757,10 @@ function validarQRAPI(qrStringInput) {
 
             const resultTitle = document.createElement('div');
             resultTitle.className = 'result-title';
-            resultTitle.textContent = '✅ Resultado de la validación QR';
+            resultTitle.textContent = 'ℹ️ Resultado de la validación QR';
 
             const resultMessage = document.createElement('div');
-            resultMessage.textContent = 'Respuesta de la API recibida correctamente.';
+            resultMessage.textContent = 'Respuesta recibida de la API:';
 
             // Mostrar el contenido de la respuesta formateado
             const responseContent = document.createElement('pre');
