@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Validador de StringQR</title>
+    <link rel="stylesheet" href="./style.css" />
+    <!-- Importamos la librería qrcode.js para generar códigos QR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔍 Validador de StringQR</h1>
+      <div class="input-group">
+        <label for="qrString">Introduzca el StringQR:</label>
+        <textarea
+          id="qrString"
+          placeholder="Pegue aquí el StringQR..."
+        ></textarea>
+      </div>
+      <div class="contenedor-btn">
+        <button id="analyzeBtn">Analizar</button>
+        <button id="limpiarString">Limpiar</button>
+        <button id="copyBtn">Copiar</button>
+      </div>
+      <div class="results" id="results"></div>
+    </div>
+    <div class="container scannerqr">
+      <h1>🔓 Decodificador de QR</h1>
+
+      <div
+        class="upload-area"
+        onclick="document.getElementById('fileInput').click()"
+      >
+        <div class="upload-icon">📷</div>
+        <div class="upload-text">Haz clic aquí o arrastra tu imagen QR</div>
+        <div class="upload-hint">Formatos soportados: JPG, PNG</div>
+      </div>
+
+      <input type="file" id="fileInput" accept="image/*" />
+
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <div>Decodificando código QR...</div>
+      </div>
+
+      <div class="preview-container">
+        <img id="preview" alt="Vista previa de la imagen" />
+        <button class="btn-clear" id="clearBtn" style="display: none">
+          Limpiar
+        </button>
+      </div>
+
+      <div class="result-container" id="result">
+        <div class="result-title">Contenido del código QR:</div>
+        <div class="result-text" id="qrText">
+          <span id="qrContent"></span>
+        </div>
+        <button class="copy-btn" id="copy-btn">Copiar</button>
+      </div>
+
+      <canvas id="canvas" style="display: none"></canvas>
+    </div>
+    <div id="toast" class="toast"></div>
+  </body>
+  <script src="./main.js"></script>
+</html>
