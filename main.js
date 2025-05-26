@@ -1191,6 +1191,7 @@ function updateQRStringWithNewMcc(oldMcc, newMcc, position, originalLengthIndica
     function validateNode58(qrString, position) {
         const expectedPrefix = '5802AR';
         const nodeContent = qrString.substring(position.start, position.start + 6);
+        
 
         if (nodeContent === expectedPrefix) {
             showSuccess('Nodo 58', `El nodo tiene el valor correcto`, nodeContent, position);
@@ -3702,6 +3703,9 @@ function showCRCError(nodeContent, foundCRC, expectedCRC, position, qrString) {
 }
 
 function showSuccess(nodeName, message, nodeContent, position) {
+    console.log("SHOOOOOOW")
+    console.log(position)
+    console.log(nodeContent)
     const resultItem = document.createElement('div');
     resultItem.className = 'result-item success';
 
@@ -3951,7 +3955,9 @@ function validarQRAPI(qrStringInput) {
                     nodeDetails.className = 'node-details';
 
                     const positionText = document.createElement('div');
-                    positionText.innerHTML = `<strong>Posición:</strong> ${position.start}-${position.end}`;
+                      // Calcular end si no existe
+                    const endPosition = position.end !== undefined ? position.end : position.start + nodeContent.length - 1;
+                    positionText.innerHTML = `<strong>Posición:</strong> ${position.start}-${endPosition}`;
                     nodeDetails.appendChild(positionText);
 
                     const nodeContentElem = document.createElement('div');
