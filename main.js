@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Validar nodo 80
             if (nodes.node80) {
-                validateNode80(qrString, nodes.node80.position);
+                validateNode80(qrString, nodes.node80.position, nodes.node62);
             } else {
                 showInfo('Nodo 80', 'No esta presente el nodo 80. Verificar que el comprobante del nodo 62 este cargado en SIRO');
             }
@@ -2525,6 +2525,8 @@ function validateNode80(qrString, position, node62) {
     // Validar la estructura interna del nodo
     try {
         const parseResult = parseNode80Content(nodeContent);
+        console.log("PARSE RESULT NODO 80")
+        console.log(parseResult)
 
         if (!parseResult.isValid) {
             showError('Nodo 80', parseResult.errorMessage, nodeContent, position);
@@ -2532,12 +2534,17 @@ function validateNode80(qrString, position, node62) {
         }
 
         // Verificar que el UUID del nodo 80 coincida con el del nodo 62
+        console.log("VERIFICACIÓN UUID")
         if (node62) {
+            console.log("ENTRO")
             const node62Content = qrString.substring(node62.position.start);
             const node62Result = parseNode62Content(node62Content);
+            console.log(node62Content);
+            console.log(node62Result);
 
             if (node62Result.isValid && node62Result.uuid !== parseResult.uuid) {
-                showError('Nodo 80', 'El UUID del nodo 80 no coincide con el UUID del nodo 62', nodeContent, position);
+                // En lugar de mostrar error directo, mostrar error con opción de corrección
+                showUUIDMismatchError(nodeContent, parseResult, node62Result, position, qrString);
                 return;
             }
         }
@@ -2549,6 +2556,133 @@ function validateNode80(qrString, position, node62) {
         showError('Nodo 80', `Error al analizar el nodo: ${error.message}`, nodeContent, position);
     }
 }
+
+
+// Nueva función para mostrar error de UUID con opción de corrección
+function showUUIDMismatchError(nodeContent, node80ParseResult, node62ParseResult, position, qrString) {
+    const resultItem = document.createElement('div');
+    resultItem.className = 'result-item error';
+    resultItem.id = 'node80-uuid-error';
+
+    const resultTitle = document.createElement('div');
+    resultTitle.className = 'result-title';
+    resultTitle.innerHTML = `❌ Nodo 80: UUID no coincide con Nodo 62`;
+
+    const resultMessage = document.createElement('div');
+    resultMessage.innerHTML = `
+        <strong>UUID Nodo 80:</strong> <span id="node80-uuid">${node80ParseResult.uuid}</span><br>
+        <strong>UUID Nodo 62:</strong> <span id="node62-uuid">${node62ParseResult.uuid}</span><br>
+        <em>Los UUID deben coincidir entre los nodos 62 y 80.</em>
+    `;
+
+    // Botón para corregir el UUID
+    const fixButton = document.createElement('button');
+    fixButton.id = 'fix-uuid-btn';
+    fixButton.className = 'fix-button';
+    fixButton.textContent = 'Coincidir UUID';
+
+    // Área para mostrar el contenido del nodo
+    const nodeDetails = document.createElement('div');
+    nodeDetails.className = 'node-details';
+
+    const positionText = document.createElement('div');
+    positionText.innerHTML = `<strong>Posición:</strong> ${position.start}-${position.start + nodeContent.length - 1}`;
+
+    const nodeContentElem = document.createElement('div');
+    nodeContentElem.className = 'node-content';
+    nodeContentElem.textContent = nodeContent;
+    nodeContentElem.id = 'node80-content';
+
+    nodeDetails.appendChild(positionText);
+    nodeDetails.appendChild(document.createTextNode('Contenido del nodo:'));
+    nodeDetails.appendChild(nodeContentElem);
+
+    // Armar el resultado
+    resultItem.appendChild(resultTitle);
+    resultItem.appendChild(resultMessage);
+    resultItem.appendChild(fixButton);
+    resultItem.appendChild(nodeDetails);
+
+    // Agregar al contenedor de resultados
+    resultsContainer.appendChild(resultItem);
+
+    // Asociar eventos a los elementos creados
+    setupUUIDFixEvent(node80ParseResult.uuid, node62ParseResult.uuid, position, qrString, nodeContent);
+}
+
+// Función para configurar el evento de corrección de UUID
+function setupUUIDFixEvent(oldUUID, newUUID, position, qrString, nodeContent) {
+    const fixUuidBtn = document.getElementById('fix-uuid-btn');
+
+    fixUuidBtn.addEventListener('click', function() {
+        // Actualizar el UUID en el string QR
+        updateQRStringWithCorrectUUID(oldUUID, newUUID, position, qrString, nodeContent);
+
+        // Cambiar el estado visual del resultado
+        const resultItem = document.getElementById('node80-uuid-error');
+        resultItem.className = 'result-item success';
+        resultItem.querySelector('.result-title').innerHTML = '✅ Nodo 80: UUID corregido';
+
+        // Actualizar el UUID mostrado
+        document.getElementById('node80-uuid').textContent = newUUID;
+
+        // Actualizar el contenido del nodo mostrado
+        const nodeContentElem = document.getElementById('node80-content');
+        if (nodeContentElem) {
+            // Reconstruir el nodo con el UUID corregido
+            const correctedNodeContent = reconstructNode80WithNewUUID(nodeContent, newUUID);
+            nodeContentElem.textContent = correctedNodeContent;
+        }
+
+        // Desactivar el botón
+        this.disabled = true;
+        this.style.display = 'none';
+        this.textContent = 'UUID Corregido';
+    });
+}
+
+// Función para reconstruir el nodo 80 con el nuevo UUID
+function reconstructNode80WithNewUUID(originalNodeContent, newUUID) {
+    // El UUID está en la posición 8 (después de "80XX0032")
+    const prefix = originalNodeContent.substring(0, 8); // "80XX0032"
+    const suffix = originalNodeContent.substring(8 + 32); // Todo después del UUID
+    
+    return prefix + newUUID + suffix;
+}
+
+// Función para actualizar el string QR con el UUID corregido
+function updateQRStringWithCorrectUUID(oldUUID, newUUID, position, qrString, nodeContent) {
+    // Obtener el string QR actual del input
+    let qrStringInput = document.getElementById('qrString');
+
+    // Calcular la posición exacta del UUID en el string QR
+    // El UUID está después de "80XX0032", donde XX es la longitud
+    const uuidPosition = position.start + 8; // Posición donde comienza el UUID
+
+    if (uuidPosition + oldUUID.length <= qrString.length) {
+        // Reemplazar el UUID en la posición exacta
+        const newQrString =
+            qrString.substring(0, uuidPosition) +
+            newUUID +
+            qrString.substring(uuidPosition + oldUUID.length);
+
+        // Actualizar el input
+        qrStringInput.value = newQrString;
+        
+        console.log('UUID actualizado en posición:', uuidPosition);
+        console.log('UUID anterior:', oldUUID);
+        console.log('UUID nuevo:', newUUID);
+    } else {
+        alert('No se pudo actualizar el UUID en la posición exacta. El string QR es demasiado corto.');
+        return;
+    }
+
+    // Volver a analizar el string QR
+    analyzeQRString();
+}
+
+
+
 // Función para analizar el contenido interno del nodo 80
 function parseNode80Content(nodeContent) {
     // El contenido comienza después del prefijo "80xx"
@@ -2748,7 +2882,7 @@ function showNode80Success(nodeContent, parseResult, position) {
 
     // 1. UUID (obligatorio)
     const uuidDiv = document.createElement('div');
-    uuidDiv.innerHTML = `<strong>UUID:</strong> <span id="displayed-node80-uuid">${uuid}</span> <span class="edit-icon" title="Editar UUID" id="edit-node80-uuid-icon">✏️</span>`;
+    uuidDiv.innerHTML = `<strong>UUID:</strong> <span id="displayed-node80-uuid">${uuid}</span> <span class="edit-icon" title="Editar UUID" id="edit-node80-uuid-icon"></span>`;
 
     // 2. Primer vencimiento (obligatorio)
     const firstDueDateFormatted = formatDateDisplay(firstDueDate);
@@ -3017,10 +3151,11 @@ function setupNode80EditEvents(parseResult, position) {
         }
     });
 
-    // Eventos para el UUID
+    /* Eventos para el UUID
     editUuidIcon.addEventListener('click', function() {
         uuidForm.style.display = 'flex';
     });
+    
 
     document.getElementById('cancel-node80-uuid-btn').addEventListener('click', function() {
         uuidForm.style.display = 'none';
@@ -3053,7 +3188,7 @@ function setupNode80EditEvents(parseResult, position) {
             parseResult.hasThirdDueDate
         );
     });
-
+    */
     // Eventos para la fecha del primer vencimiento
     editFirstDueDateIcon.addEventListener('click', function() {
         firstDueDateForm.style.display = 'flex';
@@ -3114,7 +3249,7 @@ function setupNode80EditEvents(parseResult, position) {
         }
 
         // Formatear el nuevo monto para mostrar
-        const formattedAmount = newAmountInput.toFixed(2);
+        const formattedAmount = newAmountInput
         document.getElementById('displayed-first-amount').textContent = formattedAmount;
         firstAmountForm.style.display = 'none';
 
@@ -3247,7 +3382,7 @@ function setupNode80EditEvents(parseResult, position) {
         }
 
         // Formatear el nuevo monto para mostrar
-        const formattedAmount = newAmountInput.toFixed(2);
+        const formattedAmount = newAmountInput;
         document.getElementById('displayed-second-amount').textContent = formattedAmount;
         secondAmountForm.style.display = 'none';
 
@@ -3380,7 +3515,7 @@ function setupNode80EditEvents(parseResult, position) {
         }
 
         // Formatear el nuevo monto para mostrar
-        const formattedAmount = newAmountInput.toFixed(2);
+        const formattedAmount = newAmountInput;
         document.getElementById('displayed-third-amount').textContent = formattedAmount;
         thirdAmountForm.style.display = 'none';
 
