@@ -34,11 +34,39 @@ document.addEventListener('DOMContentLoaded', function() {
     const qrStringInput = document.getElementById('qrString');
     const resultsContainer = document.getElementById('results');
 
+     // Variable global para conservar el estado de validación manual
+    let manualValidationState = {
+        node50Verified: false,
+        node51Verified: false,
+        node52Verified: false,
+        node60Verified: false,
+        node61Verified: false,
+        node62Verified: false,
+        node80Verified: false
+    };
+
+    
+    // FUNCIÓN ADICIONAL: Limpiar el estado cuando se necesite (opcional)
+    function resetManualValidationState() {
+        manualValidationState.node50Verified = false;
+        manualValidationState.node51Verified = false;
+        manualValidationState.node52Verified = false;
+        manualValidationState.node60Verified = false;
+        manualValidationState.node61Verified = false;
+        manualValidationState.node62Verified = false;
+        manualValidationState.node80Verified = false;
+        console.log("Estados reseteados")
+    }
+
     limpiarString.addEventListener('click', function() {
+        resetManualValidationState();
         document.getElementById('qrString').value = '';
         document.getElementById('results').innerHTML = '';
         document.getElementById('qrCode').innerHTML = '';
     });
+
+    
+
 
     function generateQR(qrString) {
         const resultsContainer = document.getElementById('results'); // Asegúrate de que este contenedor existe
@@ -94,6 +122,9 @@ document.addEventListener('DOMContentLoaded', function() {
         '80': { start: null, variable: true }, // Nuevo nodo 80 (posición variable)
         '63': { start: null, variable: true } // Nuevo nodo 63 (posición variable)
     };
+
+    
+   
 
     // Iniciar analisis al ejecutar el botón
     analyzeBtn.addEventListener('click', function() {
@@ -528,9 +559,16 @@ document.addEventListener('DOMContentLoaded', function() {
         resultItem.className = 'result-item warning';
         resultItem.id = 'node50-result'; // Para poder actualizarlo más tarde
 
+        // Determinar el estado inicial basado en la validación manual previa
+        const isManuallyVerified = manualValidationState.node50Verified;
+        resultItem.className = isManuallyVerified ? 'result-item success' : 'result-item warning';
+        resultItem.id = 'node50-result';
+
         const resultTitle = document.createElement('div');
         resultTitle.className = 'result-title';
-        resultTitle.innerHTML = `⚠️ Nodo 50: CUIT requiere verificación manual`;
+        resultTitle.innerHTML = isManuallyVerified 
+            ? '✅ Nodo 50: CUIT verificado manualmente'
+            : '⚠️ Nodo 50: CUIT requiere verificación manual';
 
         const resultMessage = document.createElement('div');
         resultMessage.innerHTML = `<strong>CUIT encontrado:</strong> <span id="displayed-cuit">${cuit}</span>`;
@@ -561,6 +599,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = 'manual-validation-checkbox';
+        checkbox.checked = isManuallyVerified; // Restaurar el estado previo
 
         const checkboxLabel = document.createElement('label');
         checkboxLabel.setAttribute('for', 'manual-validation-checkbox');
@@ -653,6 +692,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Evento para el checkbox de validación manual
         manualCheckbox.addEventListener('change', function() {
+            // GUARDAR EL ESTADO EN LA VARIABLE GLOBAL
+            manualValidationState.node50Verified = this.checked;
             if (this.checked) {
                 resultItem.className = 'result-item success';
                 resultItem.querySelector('.result-title').innerHTML = '✅ Nodo 50: CUIT verificado manualmente';
@@ -724,9 +765,16 @@ document.addEventListener('DOMContentLoaded', function() {
         resultItem.className = 'result-item warning';
         resultItem.id = 'node51-result'; // Para poder actualizarlo más tarde
 
+        // Determinar el estado inicial basado en la validación manual previa
+        const isManuallyVerified = manualValidationState.node51Verified;
+        resultItem.className = isManuallyVerified ? 'result-item success' : 'result-item warning';
+        resultItem.id = 'node51-result';
+
         const resultTitle = document.createElement('div');
         resultTitle.className = 'result-title';
-        resultTitle.innerHTML = `⚠️ Nodo 51: CBU requiere verificación manual`;
+        resultTitle.innerHTML = isManuallyVerified 
+            ? '✅ Nodo 51: CBU verificado manualmente'
+            : '⚠️ Nodo 51: CBU requiere verificación manual';
 
         const resultMessage = document.createElement('div');
         resultMessage.innerHTML = `<strong>CBU encontrado:</strong> <span id="displayed-cbu">${cbu}</span>`;
@@ -757,6 +805,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = 'manual-validation-checkbox-cbu';
+        checkbox.checked = isManuallyVerified; // Restaurar el estado previo
 
         const checkboxLabel = document.createElement('label');
         checkboxLabel.setAttribute('for', 'manual-validation-checkbox-cbu');
@@ -850,6 +899,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Evento para el checkbox de validación manual
         manualCheckbox.addEventListener('change', function() {
+            // GUARDAR EL ESTADO EN LA VARIABLE GLOBAL
+            manualValidationState.node51Verified = this.checked;
             if (this.checked) {
                 resultItem.className = 'result-item success';
                 resultItem.querySelector('.result-title').innerHTML = '✅ Nodo 51: CBU verificado manualmente';
@@ -968,9 +1019,16 @@ function showMccWarning(nodeContent, prefix, lengthIndicator, mcc, position) {
     resultItem.className = 'result-item warning';
     resultItem.id = 'node52-result';
 
+    // Determinar el estado inicial basado en la validación manual previa
+    const isManuallyVerified = manualValidationState.node52Verified;
+    resultItem.className = isManuallyVerified ? 'result-item success' : 'result-item warning';
+    resultItem.id = 'node52-result';
+
     const resultTitle = document.createElement('div');
-    resultTitle.className = 'result-title';
-    resultTitle.innerHTML = `⚠️ Nodo 52: MCC requiere verificación manual`;
+        resultTitle.className = 'result-title';
+        resultTitle.innerHTML = isManuallyVerified 
+            ? '✅ Nodo 52: MCC verificado manualmente'
+            : '⚠️ Nodo 52: MCC requiere verificación manual';
 
     const resultMessage = document.createElement('div');
     resultMessage.innerHTML = `
@@ -1008,6 +1066,7 @@ function showMccWarning(nodeContent, prefix, lengthIndicator, mcc, position) {
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.id = 'manual-validation-checkbox-mcc';
+    checkbox.checked = isManuallyVerified; // Restaurar el estado previo
 
     const checkboxLabel = document.createElement('label');
     checkboxLabel.setAttribute('for', 'manual-validation-checkbox-mcc');
@@ -1101,6 +1160,8 @@ function setupMccEditEvents(originalMcc, position, originalLengthIndicator) {
 
     // Evento para el checkbox de validación manual
     manualCheckbox.addEventListener('change', function() {
+        // GUARDAR EL ESTADO EN LA VARIABLE GLOBAL
+        manualValidationState.node52Verified = this.checked;
         if (this.checked) {
             resultItem.className = 'result-item success';
             resultItem.querySelector('.result-title').innerHTML = '✅ Nodo 52: MCC verificado manualmente';
@@ -1533,9 +1594,16 @@ function updateQRStringWithNewMcc(oldMcc, newMcc, position, originalLengthIndica
         resultItem.className = 'result-item warning';
         resultItem.id = 'node60-result';
 
+        // Determinar el estado inicial basado en la validación manual previa
+        const isManuallyVerified = manualValidationState.node60Verified;
+        resultItem.className = isManuallyVerified ? 'result-item success' : 'result-item warning';
+        resultItem.id = 'node60-result';
+
         const resultTitle = document.createElement('div');
         resultTitle.className = 'result-title';
-        resultTitle.innerHTML = `⚠️ Nodo 60: Provincia requiere verificación manual`;
+        resultTitle.innerHTML = isManuallyVerified 
+            ? '✅ Nodo 60: Provincia verificada manualmente'
+            : '⚠️ Nodo 60: Provincia requiere verificación manual';
 
         const resultMessage = document.createElement('div');
         resultMessage.innerHTML = `
@@ -1573,6 +1641,7 @@ function updateQRStringWithNewMcc(oldMcc, newMcc, position, originalLengthIndica
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = 'manual-validation-checkbox-content60';
+        checkbox.checked = isManuallyVerified; // Restaurar el estado previo
 
         const checkboxLabel = document.createElement('label');
         checkboxLabel.setAttribute('for', 'manual-validation-checkbox-content60');
@@ -1672,6 +1741,8 @@ function updateQRStringWithNewMcc(oldMcc, newMcc, position, originalLengthIndica
 
         // Evento para el checkbox de validación manual
         manualCheckbox.addEventListener('change', function() {
+            // GUARDAR EL ESTADO EN LA VARIABLE GLOBAL
+            manualValidationState.node60Verified = this.checked;
             if (this.checked) {
                 resultItem.className = 'result-item success';
                 resultItem.querySelector('.result-title').innerHTML = '✅ Nodo 60: Provincia verificada manualmente';
@@ -1817,9 +1888,17 @@ function updateQRStringWithNewMcc(oldMcc, newMcc, position, originalLengthIndica
         resultItem.className = 'result-item warning';
         resultItem.id = 'node61-result';
 
+        
+        // Determinar el estado inicial basado en la validación manual previa
+        const isManuallyVerified = manualValidationState.node61Verified;
+        resultItem.className = isManuallyVerified ? 'result-item success' : 'result-item warning';
+        resultItem.id = 'node61-result';
+
         const resultTitle = document.createElement('div');
         resultTitle.className = 'result-title';
-        resultTitle.innerHTML = `⚠️ Nodo 61: Codigo Postal requiere verificación manual`;
+        resultTitle.innerHTML = isManuallyVerified 
+            ? '✅ Nodo 61: Código Postal verificado manualmente'
+            : '⚠️ Nodo 61: Código Postal requiere verificación manual';
 
         const resultMessage = document.createElement('div');
         resultMessage.innerHTML = `
@@ -1857,6 +1936,7 @@ function updateQRStringWithNewMcc(oldMcc, newMcc, position, originalLengthIndica
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = 'manual-validation-checkbox-content61';
+        checkbox.checked = isManuallyVerified; // Restaurar el estado previo
 
         const checkboxLabel = document.createElement('label');
         checkboxLabel.setAttribute('for', 'manual-validation-checkbox-content61');
@@ -1956,12 +2036,14 @@ function updateQRStringWithNewMcc(oldMcc, newMcc, position, originalLengthIndica
 
         // Evento para el checkbox de validación manual
         manualCheckbox.addEventListener('change', function() {
+            // GUARDAR EL ESTADO EN LA VARIABLE GLOBAL
+            manualValidationState.node61Verified = this.checked;
             if (this.checked) {
                 resultItem.className = 'result-item success';
-                resultItem.querySelector('.result-title').innerHTML = '✅ Nodo 61: Codigo Postal verificada manualmente';
+                resultItem.querySelector('.result-title').innerHTML = '✅ Nodo 61: Código Postal verificado manualmente';
             } else {
                 resultItem.className = 'result-item warning';
-                resultItem.querySelector('.result-title').innerHTML = '⚠️ Nodo 61: Codigo Postal requiere verificación manual';
+                resultItem.querySelector('.result-title').innerHTML = '⚠️ Nodo 61: Código Postal requiere verificación manual';
             }
         });
     }
@@ -2161,9 +2243,16 @@ function showNode62Success(nodeContent, uuid, comprobante, cpe, position) {
     resultItem.className = 'result-item warning';
     resultItem.id = 'node62-result';
 
-    const resultTitle = document.createElement('div');
-    resultTitle.className = 'result-title';
-    resultTitle.innerHTML = `⚠️ Nodo 62: Datos requieren verificación manual`;
+     // Determinar el estado inicial basado en la validación manual previa
+        const isManuallyVerified = manualValidationState.node62Verified;
+        resultItem.className = isManuallyVerified ? 'result-item success' : 'result-item warning';
+        resultItem.id = 'node62-result';
+
+        const resultTitle = document.createElement('div');
+        resultTitle.className = 'result-title';
+        resultTitle.innerHTML = isManuallyVerified 
+            ? '✅ Nodo 62: Datos verificado manualmente'
+            : '⚠️ Nodo 62: Datos requieren de verificación manual';
 
     // Contenedor para mostrar los valores
     const valuesContainer = document.createElement('div');
@@ -2235,6 +2324,7 @@ function showNode62Success(nodeContent, uuid, comprobante, cpe, position) {
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.id = 'manual-validation-checkbox-form';
+    checkbox.checked = isManuallyVerified; // Restaurar el estado previo
 
     const checkboxLabel = document.createElement('label');
     checkboxLabel.setAttribute('for', 'manual-validation-checkbox-form');
@@ -2430,12 +2520,14 @@ function setupNode62EditEvents(uuid, comprobante, cpe, position) {
 
     // Evento para el checkbox de validación manual
     manualCheckbox.addEventListener('change', function() {
+        // GUARDAR EL ESTADO EN LA VARIABLE GLOBAL
+        manualValidationState.node62Verified = this.checked;
         if (this.checked) {
             resultItem.className = 'result-item success';
             resultItem.querySelector('.result-title').innerHTML = '✅ Nodo 62: Datos verificado manualmente';
         } else {
             resultItem.className = 'result-item warning';
-            resultItem.querySelector('.result-title').innerHTML = '⚠️ Nodo 62: Datos requiere verificación manual';
+            resultItem.querySelector('.result-title').innerHTML = '⚠️ Nodo 62: Datos requieren de verificación manual';
         }
     });
 }
@@ -2873,9 +2965,16 @@ function showNode80Success(nodeContent, parseResult, position) {
     resultItem.className = 'result-item warning';
     resultItem.id = 'node80-result';
 
-    const resultTitle = document.createElement('div');
-    resultTitle.className = 'result-title';
-    resultTitle.innerHTML = `⚠️ Nodo 80: Datos de vencimientos requieren verificación manual`;
+    // Determinar el estado inicial basado en la validación manual previa
+        const isManuallyVerified = manualValidationState.node80Verified;
+        resultItem.className = isManuallyVerified ? 'result-item success' : 'result-item warning';
+        resultItem.id = 'node80-result';
+
+        const resultTitle = document.createElement('div');
+        resultTitle.className = 'result-title';
+        resultTitle.innerHTML = isManuallyVerified 
+            ? '✅ Nodo 80: Datos verificados manualmente'
+            : '⚠️ Nodo 80: Datos requieren de verificación manual';
 
     // Contenedor para mostrar los valores
     const valuesContainer = document.createElement('div');
@@ -3029,6 +3128,7 @@ function showNode80Success(nodeContent, parseResult, position) {
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.id = 'manual-validation-checkbox-node80';
+    checkbox.checked = isManuallyVerified; // Restaurar el estado previo
 
     const checkboxLabel = document.createElement('label');
     checkboxLabel.setAttribute('for', 'manual-validation-checkbox-node80');
@@ -3146,12 +3246,14 @@ function setupNode80EditEvents(parseResult, position) {
 
     // Evento para el checkbox de validación manual
     manualCheckbox.addEventListener('change', function() {
+         // GUARDAR EL ESTADO EN LA VARIABLE GLOBAL
+        manualValidationState.node80Verified = this.checked;
         if (this.checked) {
             resultItem.className = 'result-item success';
             resultItem.querySelector('.result-title').innerHTML = '✅ Nodo 80: Datos verificados manualmente';
         } else {
             resultItem.className = 'result-item warning';
-            resultItem.querySelector('.result-title').innerHTML = '⚠️ Nodo 80: Datos de vencimientos requieren verificación manual';
+            resultItem.querySelector('.result-title').innerHTML = '⚠️ Nodo 80: Datos requieren de verificación manual';
         }
     });
 
