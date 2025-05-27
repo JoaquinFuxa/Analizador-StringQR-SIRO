@@ -3105,6 +3105,7 @@ function formatDateToAammdd(dateStr) {
 }
 
 // Función para configurar los eventos de edición del nodo 80
+// Función para configurar los eventos de edición del nodo 80
 function setupNode80EditEvents(parseResult, position) {
     // Referencias a los íconos de edición
     const editUuidIcon = document.getElementById('edit-node80-uuid-icon');
@@ -3114,6 +3115,7 @@ function setupNode80EditEvents(parseResult, position) {
     let editSecondDueDaysIcon, editSecondAmountIcon;
     let editThirdDueDaysIcon, editThirdAmountIcon;
 
+    // Configurar referencias para segundo vencimiento
     if (parseResult.hasSecondDueDate) {
         editSecondDueDaysIcon = document.getElementById('edit-second-due-days-icon');
         editSecondAmountIcon = document.getElementById('edit-second-amount-icon');
@@ -3121,6 +3123,7 @@ function setupNode80EditEvents(parseResult, position) {
         editSecondDueDaysIcon = document.getElementById('add-second-due-date-icon');
     }
 
+    // Configurar referencias para tercer vencimiento
     if (parseResult.hasThirdDueDate) {
         editThirdDueDaysIcon = document.getElementById('edit-third-due-days-icon');
         editThirdAmountIcon = document.getElementById('edit-third-amount-icon');
@@ -3190,6 +3193,7 @@ function setupNode80EditEvents(parseResult, position) {
         );
     });
     */
+
     // Eventos para la fecha del primer vencimiento
     editFirstDueDateIcon.addEventListener('click', function() {
         firstDueDateForm.style.display = 'flex';
@@ -3216,6 +3220,9 @@ function setupNode80EditEvents(parseResult, position) {
         // Actualizar la fecha mostrada
         document.getElementById('displayed-first-due-date').textContent = formattedDate;
         firstDueDateForm.style.display = 'none';
+
+        // Actualizar parseResult
+        parseResult.firstDueDate = newFirstDueDate;
 
         // Actualizar el QR
         updateQRStringWithNewNode80(
@@ -3250,12 +3257,15 @@ function setupNode80EditEvents(parseResult, position) {
         }
 
         // Formatear el nuevo monto para mostrar
-        const formattedAmount = newAmountInput
+        const formattedAmount = newAmountInput;
         document.getElementById('displayed-first-amount').textContent = formattedAmount;
         firstAmountForm.style.display = 'none';
 
         // Convertir a formato sin decimales
         const unformattedAmount = formattedAmount;
+
+        // Actualizar parseResult
+        parseResult.firstAmount = unformattedAmount;
 
         // Actualizar el QR
         updateQRStringWithNewNode80(
@@ -3279,11 +3289,18 @@ function setupNode80EditEvents(parseResult, position) {
         // Si estamos agregando un segundo vencimiento nuevo
         if (!parseResult.hasSecondDueDate) {
             document.getElementById('displayed-second-due-days').textContent = 'Pendiente...';
-            document.getElementById('displayed-second-amount').textContent = '0.00';
+            
+            // Inicializar valores por defecto si no existen
+            if (!parseResult.secondAmount) {
+                parseResult.secondAmount = "000";
+                document.getElementById('displayed-second-amount').textContent = '0.00';
+            }
 
-            // Mostrar el contenedor del monto
+            // Mostrar el contenedor del monto si está oculto
             const secondAmountDiv = document.getElementById('displayed-second-amount').parentNode;
-            secondAmountDiv.style.display = 'block';
+            if (secondAmountDiv) {
+                secondAmountDiv.style.display = 'block';
+            }
         }
     });
 
@@ -3296,7 +3313,9 @@ function setupNode80EditEvents(parseResult, position) {
 
             // Ocultar el contenedor del monto
             const secondAmountDiv = document.getElementById('displayed-second-amount').parentNode;
-            secondAmountDiv.style.display = 'none';
+            if (secondAmountDiv) {
+                secondAmountDiv.style.display = 'none';
+            }
         }
     });
 
@@ -3318,14 +3337,24 @@ function setupNode80EditEvents(parseResult, position) {
 
         // Si estamos agregando un segundo vencimiento nuevo
         if (!parseResult.hasSecondDueDate) {
-            // Cambiar el ícono de agregar por uno de editar
-            document.getElementById('add-second-due-date-icon').className = 'edit-icon';
-            document.getElementById('add-second-due-date-icon').id = 'edit-second-due-days-icon';
-            document.getElementById('edit-second-due-days-icon').title = 'Editar días';
+            // Actualizar parseResult primero
+            parseResult.hasSecondDueDate = true;
+            parseResult.secondDueDays = formattedDays;
+            if (!parseResult.secondAmount) {
+                parseResult.secondAmount = "000";
+            }
 
-            // Agregar un ícono de edición para el monto
+            // Cambiar el ícono de agregar por uno de editar
+            const addIcon = document.getElementById('add-second-due-date-icon');
+            if (addIcon) {
+                addIcon.className = 'edit-icon';
+                addIcon.id = 'edit-second-due-days-icon';
+                addIcon.title = 'Editar días';
+            }
+
+            // Agregar un ícono de edición para el monto si no existe
             const secondAmountText = document.querySelector('#displayed-second-amount');
-            if (!document.getElementById('edit-second-amount-icon')) {
+            if (secondAmountText && !document.getElementById('edit-second-amount-icon')) {
                 const editIcon = document.createElement('span');
                 editIcon.className = 'edit-icon';
                 editIcon.id = 'edit-second-amount-icon';
@@ -3339,13 +3368,16 @@ function setupNode80EditEvents(parseResult, position) {
                 });
             }
 
-            // Actualizar parseResult
-            parseResult.hasSecondDueDate = true;
-            parseResult.secondDueDays = formattedDays;
-            parseResult.secondAmount = "000"; // Un monto mínimo por defecto
+            // Actualizar la referencia al nuevo ícono
+            editSecondAmountIcon = document.getElementById('edit-second-amount-icon');
 
             // Abrir el formulario de edición del monto inmediatamente
-            secondAmountForm.style.display = 'flex';
+            setTimeout(() => {
+                secondAmountForm.style.display = 'flex';
+            }, 100);
+        } else {
+            // Solo actualizar los días si ya existía el segundo vencimiento
+            parseResult.secondDueDays = formattedDays;
         }
 
         // Actualizar el QR
@@ -3355,7 +3387,7 @@ function setupNode80EditEvents(parseResult, position) {
             parseResult.firstDueDate,
             parseResult.firstAmount,
             formattedDays,
-            parseResult.secondAmount || "000",
+            parseResult.secondAmount,
             parseResult.thirdDueDays,
             parseResult.thirdAmount,
             true,
@@ -3364,7 +3396,7 @@ function setupNode80EditEvents(parseResult, position) {
     });
 
     // Eventos para el monto del segundo vencimiento
-    if (parseResult.hasSecondDueDate) {
+    if (parseResult.hasSecondDueDate && editSecondAmountIcon) {
         editSecondAmountIcon.addEventListener('click', function() {
             secondAmountForm.style.display = 'flex';
         });
@@ -3390,6 +3422,9 @@ function setupNode80EditEvents(parseResult, position) {
         // Convertir a formato sin decimales
         const unformattedAmount = formattedAmount;
 
+        // Actualizar parseResult
+        parseResult.secondAmount = unformattedAmount;
+
         // Actualizar el QR
         updateQRStringWithNewNode80(
             position,
@@ -3400,7 +3435,7 @@ function setupNode80EditEvents(parseResult, position) {
             unformattedAmount,
             parseResult.thirdDueDays,
             parseResult.thirdAmount,
-            true,
+            parseResult.hasSecondDueDate,
             parseResult.hasThirdDueDate
         );
     });
@@ -3412,11 +3447,18 @@ function setupNode80EditEvents(parseResult, position) {
         // Si estamos agregando un tercer vencimiento nuevo
         if (!parseResult.hasThirdDueDate) {
             document.getElementById('displayed-third-due-days').textContent = 'Pendiente...';
-            document.getElementById('displayed-third-amount').textContent = '0.00';
+            
+            // Inicializar valores por defecto si no existen
+            if (!parseResult.thirdAmount) {
+                parseResult.thirdAmount = "000";
+                document.getElementById('displayed-third-amount').textContent = '0.00';
+            }
 
-            // Mostrar el contenedor del monto
+            // Mostrar el contenedor del monto si está oculto
             const thirdAmountDiv = document.getElementById('displayed-third-amount').parentNode;
-            thirdAmountDiv.style.display = 'block';
+            if (thirdAmountDiv) {
+                thirdAmountDiv.style.display = 'block';
+            }
         }
     });
 
@@ -3429,7 +3471,9 @@ function setupNode80EditEvents(parseResult, position) {
 
             // Ocultar el contenedor del monto
             const thirdAmountDiv = document.getElementById('displayed-third-amount').parentNode;
-            thirdAmountDiv.style.display = 'none';
+            if (thirdAmountDiv) {
+                thirdAmountDiv.style.display = 'none';
+            }
         }
     });
 
@@ -3451,14 +3495,24 @@ function setupNode80EditEvents(parseResult, position) {
 
         // Si estamos agregando un tercer vencimiento nuevo
         if (!parseResult.hasThirdDueDate) {
-            // Cambiar el ícono de agregar por uno de editar
-            document.getElementById('add-third-due-date-icon').className = 'edit-icon';
-            document.getElementById('add-third-due-date-icon').id = 'edit-third-due-days-icon';
-            document.getElementById('edit-third-due-days-icon').title = 'Editar días';
+            // Actualizar parseResult primero
+            parseResult.hasThirdDueDate = true;
+            parseResult.thirdDueDays = formattedDays;
+            if (!parseResult.thirdAmount) {
+                parseResult.thirdAmount = "000";
+            }
 
-            // Agregar un ícono de edición para el monto
+            // Cambiar el ícono de agregar por uno de editar
+            const addIcon = document.getElementById('add-third-due-date-icon');
+            if (addIcon) {
+                addIcon.className = 'edit-icon';
+                addIcon.id = 'edit-third-due-days-icon';
+                addIcon.title = 'Editar días';
+            }
+
+            // Agregar un ícono de edición para el monto si no existe
             const thirdAmountText = document.querySelector('#displayed-third-amount');
-            if (!document.getElementById('edit-third-amount-icon')) {
+            if (thirdAmountText && !document.getElementById('edit-third-amount-icon')) {
                 const editIcon = document.createElement('span');
                 editIcon.className = 'edit-icon';
                 editIcon.id = 'edit-third-amount-icon';
@@ -3472,13 +3526,16 @@ function setupNode80EditEvents(parseResult, position) {
                 });
             }
 
-            // Actualizar parseResult
-            parseResult.hasThirdDueDate = true;
-            parseResult.thirdDueDays = formattedDays;
-            parseResult.thirdAmount = "000"; // Un monto mínimo por defecto
+            // Actualizar la referencia al nuevo ícono
+            editThirdAmountIcon = document.getElementById('edit-third-amount-icon');
 
             // Abrir el formulario de edición del monto inmediatamente
-            thirdAmountForm.style.display = 'flex';
+            setTimeout(() => {
+                thirdAmountForm.style.display = 'flex';
+            }, 100);
+        } else {
+            // Solo actualizar los días si ya existía el tercer vencimiento
+            parseResult.thirdDueDays = formattedDays;
         }
 
         // Actualizar el QR
@@ -3490,14 +3547,14 @@ function setupNode80EditEvents(parseResult, position) {
             parseResult.secondDueDays,
             parseResult.secondAmount,
             formattedDays,
-            parseResult.thirdAmount || "000",
+            parseResult.thirdAmount,
             parseResult.hasSecondDueDate,
             true
         );
     });
 
     // Eventos para el monto del tercer vencimiento
-    if (parseResult.hasThirdDueDate) {
+    if (parseResult.hasThirdDueDate && editThirdAmountIcon) {
         editThirdAmountIcon.addEventListener('click', function() {
             thirdAmountForm.style.display = 'flex';
         });
@@ -3522,6 +3579,9 @@ function setupNode80EditEvents(parseResult, position) {
 
         // Convertir a formato sin decimales
         const unformattedAmount = formattedAmount;
+
+        // Actualizar parseResult
+        parseResult.thirdAmount = unformattedAmount;
 
         // Actualizar el QR
         updateQRStringWithNewNode80(
