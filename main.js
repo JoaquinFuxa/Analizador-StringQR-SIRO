@@ -1357,6 +1357,14 @@ function updateQRStringWithNewMcc(oldMcc, newMcc, position, originalLengthIndica
             return;
         }
 
+        // Verificar que no contenga letras minúsculas (a-z)
+        if (/[a-z]/.test(variableContent)) {
+            showError('Nodo 59', `El contenido no debe contener letras minúsculas (a-z)`,
+                    qrString.substring(position.start, position.start + 4 + contentLength),
+                    { start: position.start, end: position.start + 3 + contentLength });
+            return;
+        }
+
         // Calcular la posición final real del nodo
         const endPosition = position.start + 3 + contentLength;
 
@@ -1468,6 +1476,12 @@ function updateQRStringWithNewMcc(oldMcc, newMcc, position, originalLengthIndica
             // Verificar que no contenga la letra ñ
             if (/ñ/i.test(newContent)) {
                 alert('El contenido no debe contener la letra "ñ"');
+                return;
+            }
+
+            // Verificar que no contenga letras minúsculas
+            if (/[a-z]/.test(newContent)) {
+                alert('El contenido no debe contener letras minúsculas (a-z)');
                 return;
             }
 
@@ -1612,6 +1626,14 @@ function updateQRStringWithNewMcc(oldMcc, newMcc, position, originalLengthIndica
             return;
         }
 
+        // Verificar que no contenga letras minúsculas
+        if (/[a-z]/.test(variableContent)) {
+            showError('Nodo 60', `El contenido no debe contener letras minúsculas (a-z)`,
+                    qrString.substring(position.start, position.start + 4 + contentLength),
+                    { start: position.start, end: position.start + 3 + contentLength });
+        return;
+        }
+
         // Calcular la posición final real del nodo
         const endPosition = position.start + 3 + contentLength;
 
@@ -1746,6 +1768,12 @@ function updateQRStringWithNewMcc(oldMcc, newMcc, position, originalLengthIndica
             // Verificar que no contenga la letra ñ
             if (/ñ/i.test(newContent)) {
                 alert('El contenido no debe contener la letra "ñ"');
+                return;
+            }
+
+            // Verificar que no contenga letras minúsculas
+            if (/[a-z]/.test(newContent)) {
+                alert('El contenido no debe contener letras minúsculas (a-z)');
                 return;
             }
 
@@ -1907,6 +1935,14 @@ function updateQRStringWithNewMcc(oldMcc, newMcc, position, originalLengthIndica
             return;
         }
 
+        // Verificar que no contenga letras minúsculas
+        if (/[a-z]/.test(variableContent)) {
+            showError('Nodo 61', `El contenido no debe contener letras minúsculas (a-z)`,
+                qrString.substring(position.start, position.start + 4 + contentLength),
+                { start: position.start, end: position.start + 3 + contentLength });
+            return;
+        }
+
         // Calcular la posición final real del nodo
         const endPosition = position.start + 3 + contentLength;
 
@@ -2041,6 +2077,12 @@ function updateQRStringWithNewMcc(oldMcc, newMcc, position, originalLengthIndica
             // Verificar que no contenga la letra ñ
             if (/ñ/i.test(newContent)) {
                 alert('El contenido no debe contener la letra "ñ"');
+                return;
+            }
+
+            // Verificar que no contenga letras minúsculas
+            if (/[a-z]/.test(newContent)) {
+                alert('El contenido no debe contener letras minúsculas (a-z)');
                 return;
             }
 
