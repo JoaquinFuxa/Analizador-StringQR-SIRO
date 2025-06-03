@@ -525,28 +525,35 @@ flex-direction: column;
   position: fixed;
   bottom: 20px;
   right: 20px;
-  z-index: 99;
   width: 50px;
   height: 50px;
-  background-color: #4CAF50;
+  background-color: #007bff;
+  color: white;
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   display: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
+  z-index: 1000;
+  font-size: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
 }
 
 #scrollTopBtn::before {
-  content: "";
-  display: block;
-  width: 0;
-  height: 0;
-  margin-left: 15px;
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-bottom: 15px solid white; /* color de la flecha */
+  content: "↑";
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#scrollTopBtn:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+#scrollTopBtn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
