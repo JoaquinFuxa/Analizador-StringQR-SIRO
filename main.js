@@ -14,6 +14,44 @@ document.addEventListener('DOMContentLoaded', function() {
             toast.classList.remove('show');
         }, 5000);
     }
+     // Mostrar el botón solo si se hace scroll hacia abajo
+    window.onscroll = function () {
+      const btn = document.getElementById("scrollTopBtn");
+      if (
+        document.body.scrollTop > 200 ||
+        document.documentElement.scrollTop > 200
+      ) {
+        btn.style.display = "block";
+      } else {
+        btn.style.display = "none";
+      }
+    };
+
+    function scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
+
+    scrollTopBtn.addEventListener('click', function () {
+        scrollToTop();
+    });
+
+    pasteBtn.addEventListener('click', function () {
+    navigator.clipboard.readText()
+        .then(text => {
+            if (text) {
+                qrStringInput.value = text;
+                showToast('Texto pegado desde el portapapeles', 'success');
+            } else {
+                showToast('El portapapeles está vacío', 'error');
+            }
+        })
+        .catch(err => {
+            showToast('Error al pegar: ' + err, 'error');
+        });
+});
     
     copyBtn.addEventListener('click', function () {
         const text = qrStringInput.value;
